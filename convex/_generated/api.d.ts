@@ -16,6 +16,7 @@ import type * as agents_nurturer from "../agents/nurturer.js";
 import type * as agents_scout from "../agents/scout.js";
 import type * as agents_strategist from "../agents/strategist.js";
 import type * as analytics from "../analytics.js";
+import type * as debug from "../debug.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
 import type * as knowledge from "../knowledge.js";
@@ -52,6 +53,7 @@ declare const fullApi: ApiFromModules<{
   "agents/scout": typeof agents_scout;
   "agents/strategist": typeof agents_strategist;
   analytics: typeof analytics;
+  debug: typeof debug;
   files: typeof files;
   http: typeof http;
   knowledge: typeof knowledge;

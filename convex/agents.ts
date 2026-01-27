@@ -77,6 +77,7 @@ export const recordTrace = internalMutation({
     input: v.any(),
     output: v.any(),
     rationale: v.optional(v.string()),
+    thinking: v.optional(v.string()),
     usage: v.optional(v.object({
         promptTokens: v.number(),
         completionTokens: v.number(),
@@ -224,6 +225,22 @@ export const emitSignal = internalMutation({
       createdAt: Date.now(),
     });
     console.log(`[Signal] ${args.originator} -> ${args.target}: ${args.type}`);
+  },
+});
+
+// Internal helper for thread creation
+export const createThread = internalMutation({
+  args: {
+    userId: v.id("users"),
+    state: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("threads", {
+      userId: args.userId,
+      state: args.state,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
   },
 });
 

@@ -123,9 +123,15 @@ export const getLeadContext = internalQuery({
         const user = await ctx.db.get(args.userId);
         if (!user) throw new Error("User not found");
         
-        // Mocking some attributes for the qualification logic
+        const thread = await ctx.db
+            .query("threads")
+            .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+            .order("desc")
+            .first();
+
         return {
-            hasPhoto: true, // In real scenario, check messages or files table
+            threadId: thread?._id,
+            hasPhoto: true, 
             hasBio: !!user.username,
         };
     },
