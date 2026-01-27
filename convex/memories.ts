@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { action, internalMutation, internalQuery } from "./_generated/server";
-import { api, internal } from "./_generated/api";
 import { generateEmbedding } from "./lib/ai";
 
 // Internal mutation to store the memory text record
@@ -11,6 +10,17 @@ export const storeMemory = internalMutation({
     type: v.union(v.literal("text"), v.literal("observation"), v.literal("plan")),
     metadata: v.optional(v.any()),
   },
+/**
+ * Inserts a new memory record into the database.
+ *
+ * @param {ActionCtx} ctx - The context of the action
+ * @param {Object} args - The arguments of the action
+ * @param {string} args.agentId - The ID of the agent that created the memory
+ * @param {string} args.content - The content of the memory
+ * @param {string} args.type - The type of the memory (text, observation, plan)
+ * @param {Object} [args.metadata] - Optional metadata associated with the memory
+ * @returns {Promise<number>} The ID of the newly inserted memory record
+ */
   handler: async (ctx, args) => {
     return await ctx.db.insert("memories", {
       agentId: args.agentId,
@@ -29,6 +39,15 @@ export const storeEmbedding = internalMutation({
     sourceId: v.string(), // ID of the memory
     vector: v.array(v.number()),
   },
+/**
+ * Store an embedding in the database.
+ * @param {Context} ctx - The Convex API context.
+ * @param {Object} args - The arguments to the mutation.
+ * @param {string} args.sourceType - The type of the source document (e.g. "memory").
+ * @param {string} args.sourceId - The ID of the source document.
+ * @param {number[]} args.vector - The embedding vector.
+ * @returns {Promise<Object>} The result of the mutation, which is the created embedding document.
+ */
   handler: async (ctx, args) => {
     return await ctx.db.insert("embeddings", {
       sourceType: args.sourceType,
@@ -47,6 +66,18 @@ export const remember = action({
     type: v.union(v.literal("text"), v.literal("observation"), v.literal("plan")),
     metadata: v.optional(v.any()),
   },
+/**
+ * Handles the `remember` action by storing a text memory and generating an embedding from it.
+ *
+ * @param {ActionCtx} ctx - The action context.
+ * @param {Object} args - The action arguments with the following properties:
+ *   - `agentId`: The ID of the agent performing the action.
+ *   - `content`: The text content to be stored as a memory.
+ *   - `type`: The type of the memory (text, observation, plan).
+ *   - `metadata`: Optional metadata associated with the memory.
+ *
+ * @returns {Promise<string>} A promise resolving to the ID of the stored memory.
+ */
   handler: async (ctx, args) => {
     // 1. Store Text Memory
     const memoryId = await ctx.runMutation(internal.memories.storeMemory, {
@@ -77,6 +108,16 @@ export const search = action({
     query: v.string(),
     limit: v.optional(v.number()),
   },
+/**
+ * Recall memories using a hybrid search approach.
+ * Given a query string, first generate an embedding vector using AI.
+ * Then, perform a vector search on the embeddings table to find the top N closest embeddings.
+ * Finally, hydrate the memories from the vector search results.
+ * @param {string} agentId - The ID of the agent performing the search.
+ * @param {string} query - The query string to search for.
+ * @param {number} [limit=5] - The number of results to return.
+ * @returns {Promise<Array<Object>>} An array of memory objects that match the query.
+ */
   handler: async (ctx, args) => {
     const limit = args.limit || 5;
     const vector = await generateEmbedding(args.query);
@@ -112,12 +153,22 @@ export const search = action({
 // Internal Query to hydrate results
 export const retrieveMemoriesByEmbeddingIds = internalQuery({
     args: { embeddingIds: v.array(v.id("embeddings")) },
+    /**
+     * Retrieves memories by their embedding IDs.
+     * 
+     * Given an array of embedding IDs, this query fetches the memories
+     * associated with each embedding ID. If an embedding ID is not associated
+     * with a memory or if the memory does not exist, it is skipped.
+     * 
+     * @param {string[]} embeddingIds The array of embedding IDs to fetch memories for.
+     * @returns {Promise<object[]>} A promise that resolves to an array of memory objects.
+     */
     handler: async (ctx, args) => {
         const memories = [];
         for (const embeddingId of args.embeddingIds) {
             const embedding = await ctx.db.get(embeddingId);
             if (embedding && embedding.sourceType === "memory") {
-                const memory = await ctx.db.get(embedding.sourceId as any);
+                const memory = await ctx.db.get(embedding.sourceId as string);
                 if (memory) {
                     memories.push(memory);
                 }

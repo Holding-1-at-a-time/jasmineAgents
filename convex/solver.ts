@@ -1,5 +1,7 @@
 import { v } from "convex/values";
 import { action } from "./_generated/server";
+
+// TODO: Replace with real solver when available in Convex 
 // import solver from "javascript-lp-solver"; // Mocking this out due to install issues
 
 
@@ -34,7 +36,7 @@ export const solveLP = action({
             status: "success",
             result,
         };
-    } catch (error: any) {
+    } catch (error: Error) {
         console.error("Solver failed:", error);
         return {
             status: "failed",
