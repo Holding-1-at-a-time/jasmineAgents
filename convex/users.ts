@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 
 export const register = mutation({
   args: {
@@ -20,7 +20,7 @@ export const register = mutation({
       return existingUser._id;
     }
 
-    // 2. Create user (Idempotent check handled above, but OCC handles race conditions)
+    // 2. Create user (Traffic Origination / Scout Domain)
     const userId = await ctx.db.insert("users", {
       telegramId: args.telegramId,
       username: args.username,
@@ -29,26 +29,21 @@ export const register = mutation({
       createdAt: Date.now(),
     });
 
-    // 3. Handle Attribution (if source code provided)
+    // 3. Handle Attribution (SPEC-6: Secure attribution via deep links)
     if (args.sourceCode) {
-      // We will perform a detailed attribution log in a separate internal mutation
-      // or just trust the sourceCode is valid for now.
-      // Ideally, we look up the source to validate it.
       const source = await ctx.db
         .query("sources")
         .withIndex("by_code", (q) => q.eq("code", args.sourceCode!))
         .first();
 
       if (source) {
-        // Logic to link user to source can be expanded here.
-        // For now, we are just creating the user.
-        // We might want to store "sourceId" on the user if we add that field,
-        // or just rely on the "entry" conversation state to track it.
+          // Log attribution event (to be expanded with Scout specific logic)
+          console.log(`[Attribution] User ${userId} joined from source: ${args.sourceCode}`);
       }
     }
 
-    // 4. Create Initial Conversation
-    await ctx.db.insert("conversations", {
+    // 4. Create Initial Thread
+    await ctx.db.insert("threads", {
       userId,
       state: "entry",
       createdAt: Date.now(),
@@ -67,4 +62,31 @@ export const getByTelegramId = query({
       .withIndex("by_telegramId", (q) => q.eq("telegramId", args.telegramId))
       .first();
   },
+});
+
+// SPEC-6: Workflow Context Loading
+export const getLeadContext = internalQuery({
+    args: { userId: v.id("users") },
+    handler: async (ctx, args) => {
+        const user = await ctx.db.get(args.userId);
+        if (!user) throw new Error("User not found");
+        
+        // Mocking some attributes for the qualification logic
+        return {
+            hasPhoto: true, // In real scenario, check messages or files table
+            hasBio: !!user.username,
+        };
+    },
+});
+
+// SPEC-6: State Transition
+export const setQualified = internalMutation({
+    args: { userId: v.id("users"), qualified: v.boolean() },
+    handler: async (ctx, args) => {
+        await ctx.db.patch(args.userId, {
+            // We could add an isQualified field to user schema in next realignment
+            // For now, we logging it. 
+        });
+        console.log(`[Qualification] User ${args.userId} state set to: ${args.qualified}`);
+    }
 });

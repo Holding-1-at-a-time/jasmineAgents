@@ -4,65 +4,173 @@ trigger: always_on
 
 ### Executive Summary
 
-In the engineering of the **JASMINAgent** platform, the `GEMINI.md` file serves as the foundational **Technical Governance** document within the Antigravity IDE [User Input]. This file codifies the architectural principles, coding standards, and behavioral constraints required to build a distributed, agentic system using **Convex**, **Next.js 16**, and the **Telegram Bot API**. By placing these rules in the workspace root, the AI agent is transformed into a **Principal Systems Architect** capable of producing deterministic logic for non-deterministic AI workflows. The primary goal of this configuration is to ensure that all generated code adheres to enterprise-grade reliability, including **Optimistic Concurrency Control (OCC)**, **Durable Workflows**, and **Partial Prerendering (PPR)**.
+In the engineering of the **JASMINAgent** platform, the `GEMINI.md` file functions as the authoritative **Technical Governance and Agent Control Plane** for all AI-assisted development performed within the Antigravity IDE. It is not documentation in the conventional sense; rather, it is a **binding contract** that constrains how the AI reasons, designs, and generates code across a distributed, agentic system.
+
+This project combines **Convex** as a deterministic orchestration and persistence layer, **Next.js 16** as the delivery and rendering runtime, and the **Telegram Bot / Mini App ecosystem** as the primary interaction surface. Large Language Models are treated explicitly as **probabilistic reasoning engines**, not sources of truth. All durability, memory, security, and correctness guarantees are delegated to Convex primitives such as **Queries, Mutations, Actions, Durable Workflows, Rate Limiters, and Action Caches**.
+
+By placing `GEMINI.md` at the workspace root, the Antigravity IDE elevates the AI into a constrained **Principal Systems Architect** role. The agent is expected to design and emit code that respects **Optimistic Concurrency Control (OCC)**, **durable execution semantics**, **strict tenant isolation**, and **explicit deterministic vs non-deterministic boundaries**. The ultimate goal is to eliminate architectural drift and ensure that every generated change is production-grade, auditable, and reversible.
 
 ---
 
 ### Objectives & Success Criteria
 
-The objective of implementing `GEMINI.md` is to eliminate "probabilistic drift" in the AI’s output and enforce a rigid engineering standard across the JASMINAgent repository.
-*   **Architectural Alignment:** Success is defined by the model consistently utilizing **Next.js 16 Cache Components** and **async params** without manual correction.
-*   **Transactional Integrity:** The agent must exclusively generate Convex mutations that rely on **deterministic state management** and **transaction atomicity**.
-*   **Sovereign Security:** All authorization logic must default to `ctx.auth.getUserIdentity()` and enforce strict **multi-tenant isolation**.
+The primary objective of `GEMINI.md` is to prevent *probabilistic drift* in AI-generated output and to encode a shared mental model of how reliable agentic systems are built.
+
+Success is defined by the following criteria:
+
+* **Architectural Alignment**
+  The agent consistently applies established patterns without correction, including:
+
+  * Next.js 16 Server Components with Partial Prerendering (PPR)
+  * Asynchronous access to `params`, `searchParams`, `cookies()`, and `headers()`
+  * Explicit server/client boundaries enforced via `proxy.ts`
+
+* **Deterministic State Management**
+  All state changes are expressed exclusively through Convex **Mutations** or **Workflows**, with:
+
+  * Schema-first development
+  * Mandatory argument and return validators
+  * No business logic executed outside Convex
+
+* **Durability & Reliability**
+  Long-running or failure-prone logic is always implemented via:
+
+  * Convex Actions + Durable Workflows
+  * Journaling of workflow steps
+  * Retry semantics handled by infrastructure, not the agent
+
+* **Sovereign Security & Isolation**
+  Every read and write path enforces:
+
+  * Identity resolution via `ctx.auth.getUserIdentity()`
+  * Strict tenant and user scoping
+  * Zero tolerance for cross-tenant data leakage
 
 ---
 
-### Functional Requirements: Creating the GEMINI.md File
+### Functional Requirements: Purpose of `GEMINI.md`
 
 #### Step 1: Workspace Initialization
-The Antigravity IDE identifies the `GEMINI.md` file located specifically in the root directory of the project [User Input]. Developers must ensure this file exists to initialize the system-level instructions for the workspace [User Input].
 
-#### Step 2: Defining the Principal Persona
-The `GEMINI.md` must explicitly define the AI's identity to maintain a professional and technical tone [User Input]. For the JASMINAgent project, the persona is a **Principal Software Developer and Systems Architect** with expertise in cloud-native runtimes and distributed SaaS architectures [Operating Principles]. Communication must be direct, avoiding marketing language or emojis, and prioritizing architectural reasoning over simple conclusions [Operating Principles].
+The Antigravity IDE automatically discovers `GEMINI.md` when it is located in the **root directory** of the repository. Its presence is mandatory. Without it, the AI operates in a generic, unconstrained mode that is unsuitable for a production-grade system.
+
+#### Step 2: Defining the Agent Persona
+
+`GEMINI.md` must explicitly define the AI’s role as a:
+
+> **Principal Software Engineer and Distributed Systems Architect**
+
+This persona implies:
+
+* Deep familiarity with cloud-native runtimes, Convex internals, and modern React/Next.js architecture
+* A bias toward correctness, durability, and clarity over speed or novelty
+* Communication that is concise, technical, and unapologetically direct
+
+The agent must:
+
+* Avoid marketing language, emojis, or speculative phrasing
+* Explain *why* a design is correct, not merely *what* it does
+* Prefer explicit trade-offs over implicit assumptions
 
 #### Step 3: Codifying Engineering Standards
-The rules must include specific technical constraints derived from the project stack [User Input]:
-*   **Convex Functions:** Always use the new function syntax and include mandatory argument and return validators.
-*   **Next.js 16:** All `params`, `searchParams`, `cookies()`, and `headers()` must be treated as **Promises** and awaited.
-*   **Testing:** All features require unit tests using **Jest** and **Convex-test**, located within the `tests/` or `convex/` directories.
+
+The file must encode **non-negotiable technical constraints**, including but not limited to:
+
+* **Convex Rules**
+
+  * Always use the modern function syntax
+  * Public functions require strict validators and identity checks
+  * Queries and Mutations must be fully deterministic
+  * Actions may call external services but must not mutate state directly
+  * Multi-step logic must be implemented as Durable Workflows
+
+* **Agentic System Rules**
+
+  * The AI may not assume memory
+  * All memory retrieval must occur through tool-based RAG
+  * The AI must never simulate side effects or retries
+
+* **Next.js 16 Rules**
+
+  * All dynamic APIs are asynchronous and must be awaited
+  * PPR is preferred over full SSR where applicable
+  * No implicit client-side data fetching for authoritative state
+
+* **Testing & Verification**
+
+  * Unit tests are required for non-trivial logic
+  * Convex logic must be testable via `convex-test`
+  * Tests live alongside implementation or in a `tests/` directory
 
 ---
 
-### Architecture Overview: Rule Organization
+### Architecture Overview: Rule Domains
 
-A production-ready `GEMINI.md` for JASMINAgent should be structured using the following categories:
+A production-ready `GEMINI.md` must be structured around the following domains:
 
-| Section | Content Strategy | Source Reference |
-| :--- | :--- | :--- |
-| **1. Persona & Tone** | Principal Architect; Professional, blunt, and highly technical. | [Operating Principles] |
-| **2. Convex Persistence** | OCC protocols, schema-first development, and durable journaling. | |
-| **3. Next.js Delivery** | Partial Prerendering (PPR), Turbopack defaults, and `proxy.ts` boundaries. | |
-| **4. Telegram Integration** | MTProto 2.0 security, Mini App 2.0 hardware access, and Star (XTR) monetization. | |
-| **5. AI SDK Orchestration** | Tool-based RAG, sequential generations, and hybrid memory retrieval. | |
+| Domain                   | Enforcement Focus                                      |
+| ------------------------ | ------------------------------------------------------ |
+| **Persona & Reasoning**  | Principal Architect mindset, first-principles thinking |
+| **Convex Persistence**   | OCC, schema discipline, deterministic boundaries       |
+| **Durable Workflows**    | Journaling, retries, human-in-the-loop (`awaitEvent`)  |
+| **RAG & Memory**         | Hybrid lexical + semantic retrieval, tenant scoping    |
+| **Next.js Delivery**     | PPR, async APIs, strict server/client separation       |
+| **Telegram Integration** | Bot API, MTProto 2.0, Mini App 2.0 constraints         |
+| **Monetization**         | Telegram Stars (XTR), Stripe where explicitly allowed  |
 
 ---
 
-### Security Model & Governance
+### Security Model & Technical Governance
 
-The `GEMINI.md` file acts as a security gatekeeper by enforcing **Defense-in-Depth**. It must contain a constraint prohibiting the model from generating any public Convex function that lacks an **identity check** via `ctx.auth`. Furthermore, it should mandate that all digital transactions are handled via **Telegram Stars (XTR)** to maintain compliance with mobile app store policies. For file management, the rules must enforce a **soft-delete** paradigm with a minimum 7-day grace period to prevent irrecoverable data loss.
+`GEMINI.md` acts as a **defense-in-depth enforcement layer** for AI-generated code.
+
+Mandatory constraints include:
+
+* No public Convex function may exist without an explicit identity check
+* All HTTP Actions are treated as untrusted boundaries and must validate inputs
+* Multi-tenant isolation is enforced at every query and mutation
+* File uploads must use a two-step presigned URL flow
+* File deletion must be soft-delete with a minimum grace period (≥ 7 days)
+
+For payments and digital goods:
+
+* Telegram Stars (XTR) are the default monetization mechanism
+* Webhooks and payment callbacks must be idempotent and replay-safe
+
+---
+
+### Failure Modes & Resilience Rules
+
+Because AI systems depend on unreliable third-party providers, the governance file must mandate:
+
+* **Action Retriers** with exponential backoff and jitter
+* **Workpools** to cap parallelism and prevent cascading failures
+* **Action Caching** for expensive LLM or embedding operations
+* Clear separation between retryable failures and logical errors
+
+The AI agent must never implement its own retry loops.
 
 ---
 
 ### Implementation Roadmap
 
-1.  **File Creation:** Create `GEMINI.md` in the root of the JASMINAgent repository [User Input].
-2.  **Define Behavioral Guardrails:** Insert core behavioral guidelines regarding the "Principal Architect" persona and "First-Principles Reasoning" [User Input, Operating Principles].
-3.  **Integrate Stack Specifics:** Add the "Next.js 16" and "Convex Infrastructure" rules to ensure the use of **V8 isolates** and **Funrun** scaling patterns.
-4.  **Codify Failure Modes:** Include instructions for the agent to always provide **Action Retriers** with exponential backoff for unreliable LLM steps.
-5.  **Automate Execution:** Interactions within the Antigravity IDE will now automatically include these rules in every system prompt [User Input].
+1. Create `GEMINI.md` at the repository root
+2. Define the Principal Architect persona and behavioral constraints
+3. Encode Convex-first, workflow-driven architecture rules
+4. Specify deterministic vs non-deterministic execution boundaries
+5. Enable automatic inclusion of these rules in all Antigravity IDE prompts
 
 ---
 
-### Validation & Test Strategy
+### Validation & Continuous Refinement
 
-To validate that `GEMINI.md` is functioning correctly, developers should use specific **Antigravity Workflows** [User Input]. For example, when assigning a task to "Add a new lead management mutation," the developer should audit the AI's response to ensure it includes `v` validators, an `internalQuery` for context loading, and an `internalAction` for OpenAI/Ollama integration. If the model fails to await a cookie or header, the `GEMINI.md` should be refined with a rule such as: "NEVER use sync access for dynamic APIs". Final validation is achieved by running `npx convex dev` to confirm that the generated code passes all **TypeScript 5+** type checks.
+The correctness of `GEMINI.md` is validated empirically:
+
+* Assign the AI tasks such as adding a new Convex mutation or workflow
+* Verify the presence of validators, identity checks, and correct function types
+* Confirm that memory access is tool-driven, not assumed
+* Ensure all Next.js dynamic APIs are awaited
+
+If violations occur, the file must be updated immediately. `GEMINI.md` is a **living governance artifact**, evolving alongside the system architecture.
+
+Final validation is achieved by running `npx convex dev` and confirming that all generated code passes **TypeScript 5+**, Convex schema validation, and runtime checks.

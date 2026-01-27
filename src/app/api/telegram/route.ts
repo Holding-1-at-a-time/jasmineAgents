@@ -6,6 +6,20 @@ import TelegramBot from "node-telegram-bot-api";
 // Initialize Convex Client
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+/**
+ * Handle Telegram Webhook updates.
+ *
+ * This API endpoint is responsible for handling all incoming updates from Telegram.
+ *
+ * It verifies the secret token sent in the `X-Telegram-Bot-Api-Secret-Token` header.
+ *
+ * If the update is a message, it checks if the message is a `/start` command with an optional source code.
+ * If so, it calls the Convex `register` mutation to register the user.
+ * Otherwise, it logs the message in the Convex `logMessage` mutation.
+ *
+ * @param {NextRequest} req - The request object.
+ * @returns {NextResponse} - The response object.
+ */
 export async function POST(req: NextRequest) {
   // 1. Security: Verify Secret Token
   const secretToken = req.headers.get("x-telegram-bot-api-secret-token");

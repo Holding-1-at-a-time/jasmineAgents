@@ -9,6 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@convex-dev/action-cache": "^0.3.0",
+    "@convex-dev/agent": "^0.3.2",
+    "@convex-dev/rag": "^0.7.0",
+    "@convex-dev/rate-limiter": "^0.3.2",
+    "@convex-dev/workflow": "^0.3.4",
     "@types/node-telegram-bot-api": "^0.64.13",
     "convex": "^1.31.6",
     "dotenv": "^17.2.3",

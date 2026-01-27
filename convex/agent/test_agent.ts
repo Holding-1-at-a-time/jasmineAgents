@@ -1,7 +1,7 @@
 import { AbstractAgent } from "../lib/agent";
-import { api } from "../../_generated/api";
+import { api } from "../_generated/api";
 import { v } from "convex/values";
-import { action } from "../../_generated/server";
+import { action } from "../_generated/server";
 
 export class TestAgent extends AbstractAgent {
   async run(input: { shouldFail?: boolean }) {
@@ -73,7 +73,7 @@ export const runTest = action({
         // We catch the internal mutation import issue by using `api.workflows.createWorkflow`? 
         // No, `createWorkflow` is internal. 
         // `ctx.runMutation` with `internal.workflows.createWorkflow`
-        const { internal } = await import("../../_generated/api");
+        const { internal } = await import("../_generated/api");
         workflowId = await ctx.runMutation(internal.workflows.createWorkflow, {
             agentId,
             state: { input: args }
@@ -90,7 +90,7 @@ export const runTest = action({
         console.log("Test Completed:", result);
         
         // Mark workflow completed
-        const { internal } = await import("../../_generated/api");
+        const { internal } = await import("../_generated/api");
         await ctx.runMutation(internal.workflows.updateWorkflowStatus, {
              workflowId: workflowId!,
              status: "completed",
