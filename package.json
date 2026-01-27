@@ -9,12 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.28",
+    "@ai-sdk/openai": "^3.0.21",
     "@convex-dev/action-cache": "^0.3.0",
     "@convex-dev/agent": "^0.3.2",
     "@convex-dev/rag": "^0.7.0",
     "@convex-dev/rate-limiter": "^0.3.2",
     "@convex-dev/workflow": "^0.3.4",
     "@types/node-telegram-bot-api": "^0.64.13",
+    "ai": "^6.0.56",
     "convex": "^1.31.6",
     "dotenv": "^17.2.3",
     "javascript-lp-solver": "^1.0.3",

@@ -29,7 +29,8 @@ export const register = mutation({
       createdAt: Date.now(),
     });
 
-    // 3. Handle Attribution (SPEC-6: Secure attribution via deep links)
+    // 3. Handle Attribution (SPEC-16: Deterministic & Immutable)
+    let finalSourceId = undefined;
     if (args.sourceCode) {
       const source = await ctx.db
         .query("sources")
@@ -37,12 +38,21 @@ export const register = mutation({
         .first();
 
       if (source) {
-          // Log attribution event (to be expanded with Scout specific logic)
-          console.log(`[Attribution] User ${userId} joined from source: ${args.sourceCode}`);
+          finalSourceId = source._id;
+          console.log(`[Attribution] User ${userId} locked to source: ${args.sourceCode}`);
       }
     }
 
-    // 4. Create Initial Thread
+    // 4. Initialize Qualification State (Monotonic Lifecycle)
+    await ctx.db.insert("qualification_state", {
+        userId,
+        currentState: "entry",
+        history: [{ state: "entry", timestamp: Date.now(), reason: "Initial registration" }],
+        entryTimestamp: Date.now(),
+        updatedAt: Date.now(),
+    });
+
+    // 5. Create Initial Thread
     await ctx.db.insert("threads", {
       userId,
       state: "entry",
@@ -50,8 +60,50 @@ export const register = mutation({
       updatedAt: Date.now(),
     });
 
+    // 6. Linked Lead Creation if source is present
+    if (finalSourceId) {
+        await ctx.db.insert("leads", {
+            telegramId: args.telegramId,
+            sourceId: finalSourceId as string,
+            status: "new",
+            metadata: {},
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+    }
+
     return userId;
   },
+});
+
+export const setLifecycleState = mutation({
+    args: {
+        userId: v.id("users"),
+        newState: v.union(v.literal("entry"), v.literal("education"), v.literal("qualification"), v.literal("escalation")),
+        reason: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const state = await ctx.db
+            .query("qualification_state")
+            .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+            .unique();
+        
+        if (!state) throw new Error("Qualification state not found");
+
+        const order = ["entry", "education", "qualification", "escalation"];
+        if (order.indexOf(args.newState) <= order.indexOf(state.currentState)) {
+            console.log(`[Lifecycle] Rejecting non-monotonic transition: ${state.currentState} -> ${args.newState}`);
+            return;
+        }
+
+        await ctx.db.patch(state._id, {
+            currentState: args.newState,
+            history: [...state.history, { state: args.newState, timestamp: Date.now(), reason: args.reason }],
+            updatedAt: Date.now(),
+        });
+
+        console.log(`[Lifecycle] User ${args.userId} transitioned to ${args.newState}`);
+    }
 });
 
 export const getByTelegramId = query({

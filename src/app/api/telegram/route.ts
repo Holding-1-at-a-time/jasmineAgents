@@ -40,19 +40,19 @@ export async function POST(req: NextRequest) {
 
   // 3. Handle /start command
   if (text?.startsWith("/start")) {
-    const args = text.split(" ");
-    const sourceCode = args.length > 1 ? args[1] : undefined;
+    const parts = text.split(" ");
+    const startParam = parts.length > 1 ? parts[1] : undefined;
 
-    // Call Convex Mutation to Register User
+    // Call Convex Mutation to Register User with source attribution
     await convex.mutation(api.users.register, {
       telegramId,
       username: from.username,
       firstName: from.first_name,
       lastName: from.last_name,
-      sourceCode,
+      sourceCode: startParam,
     });
 
-    // TODO: Send welcome message back to Telegram
+    console.log(`[Telegram] Registered user ${telegramId} with source: ${startParam}`);
   } else if (text) {
       // 4. Handle other messages
        await convex.mutation(api.telegram.logMessage, {

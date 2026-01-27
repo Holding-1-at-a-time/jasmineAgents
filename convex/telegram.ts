@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalAction, internalMutation, query } from "./_generated/server";
-import { api, internal } from "./_generated/api";
+import { api } from "./_generated/api";
 
 export const sendTelegramMessage = internalAction({
     args: {
@@ -27,6 +27,30 @@ export const sendTelegramMessage = internalAction({
         }
 
         console.log(`[Telegram] Message sent to ${args.chatId}`);
+    },
+});
+
+export const editTelegramMessage = internalAction({
+    args: {
+        chatId: v.string(),
+        messageId: v.number(),
+        text: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const token = process.env.TELEGRAM_TOKEN;
+        const response = await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: args.chatId,
+                message_id: args.messageId,
+                text: args.text,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error("Failed to edit Telegram message:", await response.text());
+        }
     },
 });
 
