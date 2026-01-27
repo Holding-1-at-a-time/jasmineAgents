@@ -1,5 +1,5 @@
 ---
-trigger: "modifying telegram bot or mini app logic"
+trigger: always_on
 ---
 
 1. **Webhook Security**:

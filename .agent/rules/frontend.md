@@ -1,5 +1,5 @@
 ---
-trigger: "editing next.js pages, components, or api routes"
+trigger: always_on
 ---
 
 1. **Async Dynamic APIs**:

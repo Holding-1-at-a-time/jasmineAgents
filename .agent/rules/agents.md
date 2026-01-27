@@ -1,5 +1,5 @@
 ---
-trigger: "building or modifying ai agents or tools"
+trigger: always_on
 ---
 
 1. **ReAct Protocol**: All agents must follow the **Reason-Act-Observe** cycle. Max steps should default to 5.

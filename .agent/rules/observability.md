@@ -1,5 +1,5 @@
 ---
-trigger: "adding logging, tracing, or audit features"
+trigger: always_on
 ---
 
 1. **Audit Logs**:

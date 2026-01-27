@@ -1,5 +1,5 @@
 ---
-trigger: "building or modifying convex functions"
+trigger: always_on
 ---
 
 1. **Strict Validation**: ALL public-facing Convex functions (Queries, Mutations, Actions, Workflows) MUST have a `v` argument validator.
