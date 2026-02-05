@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.28",
-    "@ai-sdk/openai": "^3.0.21",
+    "@ai-sdk/openai": "^3.0.25",
     "@convex-dev/action-cache": "^0.3.0",
     "@convex-dev/agent": "^0.3.2",
     "@convex-dev/rag": "^0.7.0",

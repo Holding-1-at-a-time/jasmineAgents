@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    cacheComponents: true,
-    ppr: true,
+    // ppr: true, // Merged into cacheComponents
+    reactCompiler: true,
   },
 };
 

@@ -1,4 +1,4 @@
-import { action } from "./_generated/server";
+import { action, query } from "./_generated/server";
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 
@@ -32,5 +32,19 @@ export const testCloudModel = action({
             cause: e.cause?.message,
         };
     }
+  },
+});
+
+export const listRecentTraces = query({
+  args: {},
+  handler: async (ctx) => {
+    const traces = await ctx.db.query("traces").order("desc").take(5);
+    return traces.map(t => ({
+      agent: t.agentName,
+      step: t.stepKey,
+      model: t.model,
+      thinking: t.thinking?.substring(0, 100),
+      createdAt: new Date(t.createdAt).toISOString(),
+    }));
   },
 });
